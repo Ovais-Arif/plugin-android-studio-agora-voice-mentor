@@ -1,0 +1,9 @@
+.DS_Store
+.gradle
+.idea
+.intellijPlatform
+.kotlin
+build
+
+# Local machine configuration - should never be committed
+local.properties

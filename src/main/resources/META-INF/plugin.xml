@@ -1,0 +1,90 @@
+<idea-plugin>
+    <id>dev.agora.android.voice.mentor</id>
+    <name>Agora Android Voice Mentor</name>
+    <vendor url="https://www.agora.io">Agora</vendor>
+
+    <description><![CDATA[
+        <p>
+          <b>Agora Android Voice Mentor</b> lets you select Kotlin, Java, XML, or Gradle code in
+          Android Studio, right-click, and instantly start a <b>spoken voice conversation</b> with
+          an AI agent that acts as an Android expert mentor.
+        </p>
+
+        <h3>How it works</h3>
+        <ol>
+          <li>Select any code in the editor.</li>
+          <li>Right-click → <b>Ask Agora Conversational AI</b>.</li>
+          <li>The plugin captures your selection, builds an Android Skills prompt, and starts an
+              Agora Conversational AI cloud agent.</li>
+          <li>An embedded voice client joins the Agora channel — speak and hear the AI mentor in
+              real time.</li>
+          <li>If the embedded browser (JCEF) is unavailable, the voice client opens in your
+              default browser.</li>
+        </ol>
+
+        <h3>Requirements</h3>
+        <ul>
+          <li>An <a href="https://console.agora.io">Agora account</a> with Conversational AI
+              enabled (300 free minutes per account).</li>
+          <li>Your Agora <b>App ID</b> and <b>App Certificate</b> — entered once in the plugin
+              Settings tab.</li>
+          <li>The <b>Agent RTC UID</b> configured for your Conversational AI project.</li>
+          <li>Internet access for the voice client page to load Agora RTC/RTM SDKs from CDN.</li>
+        </ul>
+
+        <h3>Security</h3>
+        <p>
+          Your App Certificate is stored in the <b>operating-system keychain</b> via the
+          IntelliJ credential store. It is never written to project files or version control.
+          Non-sensitive settings (App ID, Geofence) are stored in IDE application settings,
+          not in <code>.idea/</code>.
+        </p>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <b>1.0.0</b>
+        <ul>
+          <li>Real Agora Conversational AI integration: mint tokens, start/stop agent via REST API.</li>
+          <li>Embedded JCEF voice client with RTC + RTM for live audio conversation.</li>
+          <li>Chat-bubble transcript rendered in the voice client page.</li>
+          <li>JS → Kotlin event bridge keeps the plugin UI in sync with voice session state.</li>
+          <li>App Certificate stored in the OS keychain (PasswordSafe) — never in project files.</li>
+          <li>Agent RTC UID configurable per user in the Settings tab.</li>
+          <li>Agora RTC/RTM SDKs loaded from CDN; only the ConvoAI toolkit (~72 KB) is bundled.</li>
+          <li>HTTP server for voice client properly shut down when the project closes.</li>
+          <li>Android Skills prompt generation for Kotlin, Java, XML, and Gradle files.</li>
+          <li>Quick-action buttons: Explain Code, Find Bugs, Improve Code, Optimize, Generate Tests.</li>
+        </ul>
+    ]]></change-notes>
+
+    <idea-version since-build="242"/>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="Agora Assistant Notifications"
+                           displayType="BALLOON"
+                           isLogByDefault="true"/>
+        <toolWindow id="Agora Assistant"
+                    factoryClass="dev.agora.mentor.toolwindow.AgoraToolWindowFactory"
+                    anchor="right"
+                    icon="/icons/agoraToolWindow.svg"/>
+
+        <!--
+          Light services: auto-discovered via @Service annotation.
+          VoiceClientHttpServerService implements Disposable so its HTTP server
+          is stopped when the project is closed.
+        -->
+        <projectService
+            serviceImplementation="dev.agora.mentor.services.VoiceClientHttpServerService"/>
+    </extensions>
+
+    <actions>
+        <action id="dev.agora.mentor.actions.AskAgoraAction"
+                class="dev.agora.mentor.actions.AskAgoraAction"
+                text="Ask Agora Conversational AI"
+                description="Start an Agora Conversational AI voice session about the selected Android code">
+            <add-to-group group-id="EditorPopupMenu"/>
+        </action>
+    </actions>
+</idea-plugin>
